@@ -39,11 +39,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/sessions/logout-others', [ProfileController::class, 'logoutOthers'])->name('sessions.others');
 
     Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::get('/notifications/all', [NotificationController::class, 'page'])->name('notifications.all');
     Route::post('/notifications/read/{id?}', [NotificationController::class, 'read'])->name('notifications.read');
 
     /* Tenant-scoped routes */
     Route::prefix('workspaces/{team:slug}')->middleware('tenant')->name('w.')->group(function () {
         Route::get('/', [WorkspaceController::class, 'dashboard'])->name('dashboard');
+        Route::get('/notifications', [NotificationController::class, 'page'])->name('notifications');
 
         Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
         Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');

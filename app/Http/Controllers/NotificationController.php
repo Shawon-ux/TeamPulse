@@ -15,6 +15,13 @@ class NotificationController extends Controller
                 'read' => (bool) $n->read_at, 'time' => $n->created_at->diffForHumans()]),
         ]);
     }
+    public function page(Request $r, ?\App\Models\Team $team = null)
+    {
+        $u = $r->user();
+        $filter = $r->query('filter') === 'unread' ? 'unread' : 'all';
+        $q = $filter === 'unread' ? $u->unreadNotifications() : $u->notifications();
+        return view('notifications', ['items' => $q->latest()->paginate(20)->withQueryString(), 'filter' => $filter, 'unread' => $u->unreadNotifications()->count()]);
+    }
     public function read(Request $r, string $id = null)
     {
         $q = $r->user()->unreadNotifications();

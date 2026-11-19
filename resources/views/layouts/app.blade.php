@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>try{if(localStorage.theme==='dark'||(!localStorage.theme&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>@yield('title', 'Dashboard') · TeamPulse</title>
   <link rel="preconnect" href="https://fonts.bunny.net"><link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet">
@@ -82,6 +82,7 @@
       </div>
       <div class="flex items-center gap-4">
         @yield('actions')
+        <button x-data="{d:document.documentElement.classList.contains('dark')}" @click="d=!d;document.documentElement.classList.toggle('dark',d);try{localStorage.theme=d?'dark':'light'}catch(e){}" class="rounded-full p-2 text-slate-600 hover:bg-slate-100" title="Toggle night mode"><span x-text="d?'☀️':'🌙'" class="text-lg leading-none"></span></button>
         <div x-data="bell('{{ route('notifications') }}', '{{ route('notifications.read') }}')" class="relative">
           <button @click="open=!open" class="relative rounded-full p-2 text-slate-600 hover:bg-slate-100"><x-icon name="bell" class="h-6 w-6"/>
             <span x-show="unread>0" x-text="unread" x-cloak class="absolute -right-0.5 -top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-rose-500 px-1 text-xs font-bold text-white"></span></button>
@@ -94,6 +95,7 @@
               </template>
               <p x-show="!items.length" class="px-4 py-8 text-center text-sm text-slate-400">You're all caught up 🎉</p>
             </div>
+            <a href="{{ isset($team) ? route('w.notifications', $team) : route('notifications.all') }}" class="block border-t bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-indigo-600 hover:bg-slate-100">See all notifications</a>
           </div>
         </div>
       </div>

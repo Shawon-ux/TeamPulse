@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><script>try{if(localStorage.theme==='dark'||(!localStorage.theme&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}</script><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>TeamPulse — Team workspace, boards, chat & billing</title>
 <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800" rel="stylesheet">
 @vite(['resources/css/app.css','resources/js/app.js'])</head>
