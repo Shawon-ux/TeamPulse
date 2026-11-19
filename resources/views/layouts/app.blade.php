@@ -10,9 +10,14 @@
 <body class="bg-slate-50 font-sans text-slate-800 antialiased" x-data="{ side: false }">
 @php
   $u = auth()->user();
+  if (!isset($team)) {  // pages outside a workspace URL (profile, notifications, admin) keep the sidebar
+    $team = $u->currentTeam;
+    $role = $team ? $u->roleIn($team) : null;
+    if (!$role) { $team = $u->teams()->first(); $role = $team ? $u->roleIn($team) : null; }
+  }
   $isAdminArea = request()->routeIs('admin.*');
   $nav = [];
-  if (isset($team) && !$isAdminArea) {
+  if ($team && !$isAdminArea) {
     $nav = [
       ['w.dashboard', 'Dashboard', 'home', true], ['w.projects.index', 'Projects', 'folder', true], ['w.chat', 'Team Chat', 'chat', true],
       ['w.members.index', 'Members', 'users', true], ['w.activity', 'Audit Log', 'log', $role && in_array($role, ['owner','admin'])],
@@ -26,7 +31,7 @@
   <aside :class="side ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'" class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-slate-900 text-slate-300 transition-transform">
     <a href="{{ route('home') }}" class="flex h-16 items-center gap-2 px-5 text-xl font-extrabold text-white"><span class="grid h-8 w-8 place-items-center rounded-lg bg-indigo-500">⚡</span> TeamPulse</a>
 
-    @if (isset($team) && !$isAdminArea)
+    @if ($team && !$isAdminArea)
     <div x-data="{o:false}" class="relative mx-3 mb-3">
       <button @click="o=!o" class="flex w-full items-center justify-between rounded-lg bg-slate-800 px-3 py-2 text-left text-sm hover:bg-slate-700">
         <span class="truncate"><span class="block truncate font-semibold text-white">{{ $team->name }}</span><span class="text-xs capitalize text-slate-400">{{ $role }} · {{ $team->planConfig()['name'] }}</span></span> <span>▾</span>
@@ -69,7 +74,7 @@
         <span class="min-w-0"><span class="block truncate text-sm font-medium text-white">{{ $u->name }}</span><span class="block truncate text-xs text-slate-400">{{ $u->email }}</span></span>
       </a>
       <form method="POST" action="{{ route('logout') }}" class="mt-1">@csrf
-        <button class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm hover:bg-slate-800 hover:text-white"><x-icon name="logout"/> Sign out</button>
+        <button class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium hover:bg-rose-600/20 hover:text-rose-300"><x-icon name="logout" class="h-5 w-5"/> Sign out</button>
       </form>
     </div>
   </aside>
@@ -83,6 +88,7 @@
       <div class="flex items-center gap-4">
         @yield('actions')
         <button x-data="{d:document.documentElement.classList.contains('dark')}" @click="d=!d;document.documentElement.classList.toggle('dark',d);try{localStorage.theme=d?'dark':'light'}catch(e){}" class="rounded-full p-2 text-slate-600 hover:bg-slate-100" title="Toggle night mode"><span x-text="d?'☀️':'🌙'" class="text-lg leading-none"></span></button>
+        <form method="POST" action="{{ route('logout') }}">@csrf<button title="Sign out" class="rounded-full p-2 text-slate-600 hover:bg-rose-50 hover:text-rose-600"><x-icon name="logout" class="h-6 w-6"/></button></form>
         <div x-data="bell('{{ route('notifications') }}', '{{ route('notifications.read') }}')" class="relative">
           <button @click="open=!open" class="relative rounded-full p-2 text-slate-600 hover:bg-slate-100"><x-icon name="bell" class="h-6 w-6"/>
             <span x-show="unread>0" x-text="unread" x-cloak class="absolute -right-0.5 -top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-rose-500 px-1 text-xs font-bold text-white"></span></button>
@@ -95,7 +101,7 @@
               </template>
               <p x-show="!items.length" class="px-4 py-8 text-center text-sm text-slate-400">You're all caught up 🎉</p>
             </div>
-            <a href="{{ isset($team) ? route('w.notifications', $team) : route('notifications.all') }}" class="block border-t bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-indigo-600 hover:bg-slate-100">See all notifications</a>
+            <a href="{{ $team ? route('w.notifications', $team) : route('notifications.all') }}" class="block border-t bg-slate-50 px-4 py-3 text-center text-sm font-semibold text-indigo-600 hover:bg-slate-100">See all notifications</a>
           </div>
         </div>
       </div>
